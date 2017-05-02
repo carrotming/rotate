@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>围绕旋转</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            border: 0;
+        }
+        div{
+            background: black;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+</body>
+<script src="konva.js"></script>
+<script>
+    window.onload=function (){
+        var stage=new Konva.Stage({
+            width:window.innerWidth,
+            height:window.innerHeight,
+            container:container
+        });
+
+        var layer = new Konva.Layer({});
+        stage.add(layer);
+       //圆心
+       var x0=stage.width()*0.5;
+
+       var y0=stage.height()*0.5;
+
+        var outR=300;
+
+        var insideR=150;
+
+        var group=new Konva.Group({
+            x:0,
+            y:0
+        });
+        layer.add(group);
+
+        var outArc=new Konva.Circle({
+            x:x0,
+            y:y0,
+            radius:outR,
+            stroke:"#ccc",
+            strokeWidth:5,
+            dash:[7, 3]
+        });
+
+        var insideArc=new Konva.Circle({
+            x:x0,
+            y:y0,
+            radius:insideR,
+            stroke:"#ccc",
+            strokeWidth:5,
+            dash:[7, 3]
+        });
+
+        group.add(outArc);
+        group.add(insideArc);
+
+        var RingArc=new CenterCircle({
+            x:x0,
+            y:y0,
+            RingOutR:75,
+            RingInR:65,
+            RingFill:'#ccc',
+            opacity:0.8,
+            centerFill:'red',
+            textColor:'white',
+            text:'劳柏明'
+        });
+
+        RingArc.Render(layer);
+
+        layer.draw();
+
+        //创建动画层
+
+        var animationLayer=new Konva.Layer({ });
+        stage.add(animationLayer);
+
+           //内层动画
+        var inGroup=new Konva.Group({
+            x:x0,
+            y:y0
+        })
+        animationLayer.add(inGroup);
+        //外层动画
+        var outGroup=new Konva.Group({
+            x:x0,
+            y:y0
+        });
+        animationLayer.add(outGroup);
+
+        //内层动画成员
+        var zhang = new CenterCircle({
+            x:insideR * Math.cos(60 * Math.PI/180),
+            y:insideR * Math.sin(60 * Math.PI/180),
+            RingOutR:60,
+            RingInR:50,
+            RingFill:'#ccc',
+            opacity:0.6,
+            centerFill:'wheat',
+            textColor:'black',
+            text:'张雨霖'
+        });
+
+        var xu = new CenterCircle({
+            x:insideR * Math.cos(-60 * Math.PI/180),
+            y:insideR * Math.sin(-60 * Math.PI/180),
+            RingOutR:70,
+            RingInR:60,
+            RingFill:'#ccc',
+            opacity:0.8,
+            centerFill:'blue',
+            textColor:'black',
+            text:'徐展艺'
+        });
+        var chen = new CenterCircle({
+            x:insideR * Math.cos(160 * Math.PI/180),
+            y:insideR * Math.sin(160 * Math.PI/180),
+            RingOutR:50,
+            RingInR:40,
+            RingFill:'#ccc',
+            opacity:0.4,
+            centerFill:'pink',
+            textColor:'black',
+            text:'陈金波',
+        });
+        //放到内层动画
+        zhang.Render(inGroup);
+        xu.Render(inGroup);
+        chen.Render(inGroup);
+
+
+        //创建外层动画成员
+        var ceng = new CenterCircle({
+            x:outR * Math.cos(130 * Math.PI/180),
+            y:outR * Math.sin(130 * Math.PI/180),
+            RingOutR:90,
+            RingInR:80,
+            RingFill:'#ccc',
+            opacity:0.4,
+            centerFill:'purple',
+            textColor:'white',
+            text:'曾基锟'
+        });
+        var luo = new CenterCircle({
+            x:outR * Math.cos(-135 * Math.PI/180),
+            y:outR * Math.sin(-135 * Math.PI/180),
+            RingOutR:80,
+            RingInR:70,
+            RingFill:'#ccc',
+            opacity:0.4,
+            centerFill:'green',
+            textColor:'white',
+            text:'罗伟星'
+        });
+        var lv = new CenterCircle({
+            x:outR * Math.cos(0 * Math.PI/180),
+            y:outR * Math.sin(0 * Math.PI/180),
+            RingOutR:70,
+            RingInR:60,
+            RingFill:'#ccc',
+            opacity:0.4,
+            centerFill:'gold',
+            textColor:'white',
+            text:'吕德福'
+        });
+            //外层成员 放到外层动画
+        ceng.Render(outGroup);
+        luo.Render(outGroup);
+        lv.Render(outGroup);
+
+        animationLayer.draw();
+
+        var inRot =30;
+        var outRot=60;
+         var animation=new Konva.Animation(function (frame) {
+            //上一帧到当前帧的时间差 ms -->s
+            var timeDiff = frame.timeDiff /1000;//距离上一帧的时间差
+            //一帧转多少度
+            var inRotDeg = timeDiff * inRot;
+            var outRotDeg = timeDiff * outRot;
+
+             //8.1 内层动画运动
+             inGroup.rotate(-inRotDeg);
+             inGroup.getChildren().each(function (obj, index) {
+                 obj.rotate(inRotDeg);
+            });
+
+            //8.2 外层动画运动
+             outGroup.rotate(outRotDeg);
+             outGroup.getChildren().each(function (obj, index) {
+                 obj.rotate(-outRotDeg);
+            });
+         }, animationLayer);
+
+
+        //9.开启动画
+        animation.start();
+
+        //10.事件处理
+        animationLayer.on('mousemove', function () {
+//            rotateAnglePerSecond = 20;
+            animation.stop();
+        });
+
+        animationLayer.on('mouseout',function () {
+//            rotateAnglePerSecond = 60;
+            animation.start();
+        })
+    };
+
+function CenterCircle(option){
+   this._init(option);
+}
+    CenterCircle.prototype={
+        constructor:CenterCircle,
+        _init:function (option){
+            var option=option||{};
+            this.x=option.x;
+            this.y=option.y;
+            this.RingOutR=option.RingOutR ;//外环的半径
+            this.RingInR=option.RingInR; //内环的半径
+            this.RingFill=option.RingFill;//圆环颜色
+            this.opacity=option.opacity;//透明度
+            this.radius=this.RingInR ;//内圆半径
+            this.centerFill=option.centerFill; //内圆颜色
+            this.textColor=option.textColor; //文字颜色
+            this.text=option.text;//文字内容
+//            this.size=option.size||18; //字体大小
+        },
+        Render:function (layer){
+            this.group=new Konva.Group({
+                x:this.x,
+                y:this.y
+            });
+            layer.add(this.group);
+            //画圆环
+            var RingR=new Konva.Ring({
+                innerRadius:this.RingInR,
+                outerRadius:this.RingOutR,
+                fill:this.RingFill,
+                opacity:this.opacity
+            });
+            //放进总数组
+            this.group.add(RingR);
+            //画圆
+            var centerArc=new Konva.Circle({
+                radius:this.radius,
+                fill:this.centerFill
+            })
+            this.group.add(centerArc);
+            //画文字
+            var text=new Konva.Text({
+                x:-25,
+                y:-10,
+                width:2*this.innerRadius,
+                text:this.text,
+                fill:this.textColor,
+                fontSize:18,
+                align:'center'
+            });
+            this.group.add(text);
+        }
+    }
+
+</script>
+</html>
